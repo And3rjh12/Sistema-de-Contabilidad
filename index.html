@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SISTEMA DE REGISTROS DIARIOS</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e;--bg2:#0d1526;--bg3:#111d35;--card:#131f38;--card2:#172340;
+  --border:#1e3058;--border2:#2a4070;
+  --blue:#2563eb;--blue2:#3b82f6;--blue3:#60a5fa;--blued:#1d4ed8;
+  --text:#e8edf5;--text2:#94a3b8;--text3:#64748b;
+  --green:#10b981;--red:#ef4444;--amber:#f59e0b;
+  --pichincha:#f59e0b;--guayaquil:#8b5cf6;
+  --radius:10px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
+#root{height:100%}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+input,select{width:100%;padding:9px 13px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:.2s}
+input:focus,select:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,99,235,.2)}
+input::placeholder{color:var(--text3)}
+.btn{padding:9px 18px;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blued);transform:translateY(-1px)}
+.btn-secondary{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg3)}
+.btn-danger{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.btn-danger:hover{background:rgba(239,68,68,.22)}
+.btn-success{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.btn-amber{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.btn-sm{padding:5px 11px;font-size:11px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg3);color:var(--text2);font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;padding:9px 14px;text-align:left;
+  border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+tbody tr:hover{background:var(--bg3)}
+tbody td{padding:10px 14px;font-size:13px}
+tbody tr:last-child{border-bottom:none}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600}
+.badge-blue{background:rgba(59,130,246,.15);color:var(--blue3)}
+.badge-green{background:rgba(16,185,129,.15);color:var(--green)}
+.badge-amber{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge-purple{background:rgba(139,92,246,.15);color:#a78bfa}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red)}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:230px;background:var(--bg2);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid var(--border)}
+.sidebar-logo h1{font-size:14px;font-weight:700;color:var(--blue3);line-height:1.3}
+.sidebar-logo p{font-size:11px;color:var(--text3);margin-top:2px}
+.nav-section{padding:10px 18px 3px;font-size:10px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.1em}
+.nav-item{display:flex;align-items:center;gap:9px;padding:10px 18px;cursor:pointer;
+  font-size:13px;color:var(--text2);transition:all .15s;border:none;background:none;
+  font-family:inherit;font-weight:500;text-align:left;width:100%}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(37,99,235,.15);color:var(--blue3);border-right:2px solid var(--blue2)}
+.nav-item .nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.main{margin-left:230px;padding:28px;min-height:100vh}
+.page-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.page-sub{color:var(--text2);font-size:12px;margin-bottom:22px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px}
+.stat-val{font-size:26px;font-weight:700}
+.stat-lbl{font-size:12px;color:var(--text2);margin-top:3px}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--text2);
+  margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.form-group{margin-bottom:14px}
+.alert{padding:10px 14px;border-radius:var(--radius);font-size:12px;margin-bottom:14px}
+.alert-error{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.25)}
+.alert-success{background:rgba(16,185,129,.1);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-card{width:390px;background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:38px;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.total-bar{background:var(--card2);border:1px solid var(--border2);border-radius:14px;
+  padding:18px 22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.total-amount{font-size:28px;font-weight:700;color:var(--blue3)}
+.two-col{display:grid;grid-template-columns:1fr 2fr;gap:20px}
+.two-col-eq{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);
+  display:flex;align-items:center;justify-content:center;z-index:200}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:16px;
+  padding:28px;width:430px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:17px;font-weight:700;margin-bottom:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.grid6{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.tipo-btn{padding:12px;border-radius:10px;border:2px solid var(--border);
+  background:var(--bg3);cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
+.tipo-btn:hover{border-color:var(--blue2)}
+.tipo-btn.selected{border-color:var(--blue2);background:rgba(37,99,235,.15)}
+.tipo-btn .tipo-icon{font-size:20px;display:block;margin-bottom:4px}
+.tipo-btn .tipo-name{font-size:12px;font-weight:600;color:var(--text2)}
+.tipo-btn.selected .tipo-name{color:var(--blue3)}
+.bank-header{padding:14px 18px;border-radius:12px;margin-bottom:18px;
+  display:flex;align-items:center;gap:12px}
+.bank-pichincha{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25)}
+.bank-guayaquil{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25)}
+.bank-title{font-size:16px;font-weight:700}
+.pichincha-text{color:var(--pichincha)}
+.guayaquil-text{color:var(--guayaquil)}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;
+  cursor:pointer;border:none;font-family:inherit;transition:all .2s}
+.tab.active{background:var(--blue);color:#fff}
+.tab:not(.active){background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+.filter-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px 20px;margin-bottom:20px}
+.filter-row .form-group{margin-bottom:0;min-width:150px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useCallback,useContext,createContext} = React;
+const API = "http://localhost:8000";  // ← En producción cambia por tu dominio o deja vacío si Nginx hace proxy
+
+async function apiFetch(path,opts={}){
+  const token=localStorage.getItem("token");
+  const res=await fetch(API+path,{...opts,headers:{
+    "Content-Type":"application/json",
+    ...(token?{Authorization:`Bearer ${token}`}:{}),
+    ...(opts.headers||{})
+  }});
+  if(!res.ok){const e=await res.json().catch(()=>({detail:"Error"}));throw new Error(e.detail||"Error")}
+  return res.json();
+}
+
+async function apiDownload(path){
+  const token=localStorage.getItem("token");
+  const res=await fetch(API+path,{headers:{Authorization:`Bearer ${token}`}});
+  if(!res.ok)throw new Error("Error al descargar");
+  const blob=await res.blob();
+  const cd=res.headers.get("Content-Disposition")||"";
+  const m=cd.match(/filename="(.+)"/);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=m?m[1]:"reporte.xlsx";
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+const AuthCtx=createContext(null);
+function AuthProvider({children}){
+  const [user,setUser]=useState(null);
+  const [loading,setLoading]=useState(true);
+  useEffect(()=>{
+    const t=localStorage.getItem("token"),u=localStorage.getItem("user");
+    if(t&&u)setUser(JSON.parse(u));
+    setLoading(false);
+  },[]);
+  const login=async(email,pw)=>{
+    const res=await fetch(API+"/auth/login",{method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({username:email,password:pw})});
+    if(!res.ok){const e=await res.json();throw new Error(e.detail||"Error")}
+    const d=await res.json();
+    localStorage.setItem("token",d.access_token);
+    localStorage.setItem("user",JSON.stringify(d.usuario));
+    setUser(d.usuario);
+  };
+  const logout=()=>{localStorage.removeItem("token");localStorage.removeItem("user");setUser(null)};
+  return <AuthCtx.Provider value={{user,login,logout,loading}}>{children}</AuthCtx.Provider>;
+}
+
+// ── LOGIN ─────────────────────────────────────────────────
+function LoginPage(){
+  const {login}=useContext(AuthCtx);
+  const [email,setEmail]=useState("");const [pw,setPw]=useState("");
+  const [err,setErr]=useState("");const [load,setLoad]=useState(false);
+  const go=async()=>{
+    if(!email||!pw){setErr("Completa los campos");return}
+    setLoad(true);setErr("");
+    try{await login(email,pw)}catch(e){setErr(e.message)}finally{setLoad(false)}
+  };
+  return(
+    <div className="login-wrap">
+      <div className="login-card">
+        <div style={{textAlign:"center",marginBottom:28}}>
+          <div style={{fontSize:38,marginBottom:8}}>🏢</div>
+          <div style={{fontSize:20,fontWeight:700,color:"var(--blue3)"}}>JAKFIBER</div>
+          <div style={{fontSize:20,fontWeight:700,color:"var(--blue3)"}}>SISTEMA DE REGISTROS DIARIOS</div>
+          <div style={{fontSize:12,color:"var(--text3)",marginTop:4}}>INGRESE SUS CREDENCIALES</div>
+        </div>
+        {err&&<div className="alert alert-error">{err}</div>}
+        <div className="form-group">
+          <label className="form-label">CORREO ELECTRONICO</label>
+          <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+            placeholder="tu@correo.com" onKeyDown={e=>e.key==="Enter"&&go()}/>
+        </div>
+        <div className="form-group">
+          <label className="form-label">CONTRASEÑA</label>
+          <input type="password" value={pw} onChange={e=>setPw(e.target.value)}
+            placeholder="••••••••" onKeyDown={e=>e.key==="Enter"&&go()}/>
+        </div>
+        <button className="btn btn-primary" style={{width:"100%",padding:12,marginTop:6}}
+          onClick={go} disabled={load}>{load?<span className="spinner"/>:"Iniciar sesión"}</button>
+      </div>
+    </div>
+  );
+}
+
+// ── LAYOUT ────────────────────────────────────────────────
+function Layout({page,setPage,children}){
+  const {user,logout}=useContext(AuthCtx);
+  const isAdmin=user?.rol==="admin";
+  const userNav=[
+    {id:"registro",icon:"📝",label:"Registro del día"},
+    {id:"banco_pichincha",icon:"🏦",label:"Banco Pichincha"},
+    {id:"banco_guayaquil",icon:"🏦",label:"Banco Guayaquil"},
+    {id:"caja",icon:"💰",label:"Mi Caja"},
+    {id:"caja_pichincha",icon:"📊",label:"Caja Pichincha"},
+    {id:"caja_guayaquil",icon:"📊",label:"Caja Guayaquil"},
+    {id:"reporte_dia",icon:"📊",label:"Reporte General"},
+  ];
+  const adminNav=[
+    {id:"dashboard",icon:"📊",label:"Dashboard"},
+    {id:"dash_pichincha",icon:"🏦",label:"Dashboard Pichincha"},
+    {id:"dash_guayaquil",icon:"🏦",label:"Dashboard Guayaquil"},
+    {id:"reportes",icon:"📈",label:"Reportes"},
+    {id:"reporte_general",icon:"📑",label:"Reporte General"},
+    {id:"sucursales",icon:"🏪",label:"Sucursales"},
+    {id:"usuarios",icon:"👥",label:"Usuarios"},
+  ];
+  const nav=isAdmin?adminNav:userNav;
+  return(
+    <div>
+      <div className="sidebar">
+        <div className="sidebar-logo">
+          <h1>🏢 Registro Diario</h1>
+          <p>{user?.sucursal_nombre||"Administrador"}</p>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:"6px 0"}}>
+          <div className="nav-section">Menú</div>
+          {nav.map(n=>(
+            <button key={n.id} className={`nav-item${page===n.id?" active":""}`} onClick={()=>setPage(n.id)}>
+              <span className="nav-icon">{n.icon}</span>{n.label}
+            </button>
+          ))}
+        </div>
+        <div style={{padding:"14px 18px",borderTop:"1px solid var(--border)"}}>
+          <div style={{fontSize:12,color:"var(--text2)",marginBottom:3}}>{user?.nombre}</div>
+          <div style={{marginBottom:10}}>
+            <span className={`badge badge-${isAdmin?"amber":"blue"}`}>{isAdmin?"Admin":"Usuario"}</span>
+          </div>
+          <button className="btn btn-secondary btn-sm" style={{width:"100%"}} onClick={logout}>Cerrar sesión</button>
+        </div>
+      </div>
+      <div className="main">{children}</div>
+    </div>
+  );
+}
+
+// ── REGISTRO DEL DÍA ─────────────────────────────────────
+function PageRegistro(){
+  const [servicios,setServicios]=useState([]);
+  const [registros,setRegistros]=useState([]);
+  const [total,setTotal]=useState(0);
+  const [svcId,setSvcId]=useState("");const [valor,setValor]=useState("");
+  const [msg,setMsg]=useState(null);const [load,setLoad]=useState(false);
+  const cargar=useCallback(async()=>{
+    const [s,h]=await Promise.all([apiFetch("/servicios"),apiFetch("/registros/hoy")]);
+    setServicios(s);setRegistros(h.registros);setTotal(h.total);
+  },[]);
+  useEffect(()=>{cargar()},[cargar]);
+  const guardar=async()=>{
+    if(!svcId||!valor){setMsg({t:"error",m:"Selecciona servicio e ingresa valor"});return}
+    const v=parseFloat(valor);if(isNaN(v)||v<0){setMsg({t:"error",m:"Valor inválido"});return}
+    setLoad(true);
+    try{
+      await apiFetch("/registros",{method:"POST",body:JSON.stringify({servicio_id:parseInt(svcId),valor:v})});
+      setValor("");setSvcId("");setMsg({t:"success",m:"Guardado ✓"});
+      setTimeout(()=>setMsg(null),2200);await cargar();
+    }catch(e){setMsg({t:"error",m:e.message})}finally{setLoad(false)}
+  };
+  const hoy=new Date().toLocaleDateString("es-EC",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  return(
+    <div>
+      <div className="page-title">Registro del día</div>
+      <div className="page-sub" style={{textTransform:"capitalize"}}>{hoy}</div>
+      <div className="total-bar">
+        <div><div style={{fontSize:20,color:"var(--text2)",marginBottom:3}}>Total acumulado hoy</div>
+          <div className="total-amount">${total.toFixed(2)}</div></div>
+        <div style={{fontSize:12,color:"var(--text2)"}}>{registros.length} registro{registros.length!==1?"s":""}</div>
+      </div>
+      <div className="two-col">
+        <div className="card">
+          <div style={{fontSize:14,fontWeight:700,marginBottom:16}}>Nuevo registro</div>
+          {msg&&<div className={`alert alert-${msg.t}`}>{msg.m}</div>}
+          <div className="form-group"><label className="form-label">Servicio</label>
+            <select value={svcId} onChange={e=>setSvcId(e.target.value)}>
+              <option value="">-- Seleccionar --</option>
+              {servicios.map(s=><option key={s.id} value={s.id}>{s.nombre}</option>)}
+            </select></div>
+          <div className="form-group"><label className="form-label">Valor ($)</label>
+            <input type="number" step="0.01" min="0" value={valor}
+              onChange={e=>setValor(e.target.value)} placeholder="0.00"
+              onKeyDown={e=>e.key==="Enter"&&guardar()}/></div>
+          <button className="btn btn-primary" style={{width:"100%"}} onClick={guardar} disabled={load}>
+            {load?<span className="spinner"/>:"💾 Guardar registro"}</button>
+        </div>
+        <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+          <div style={{padding:"16px 20px 12px",borderBottom:"1px solid var(--border)"}}>
+            <div style={{fontSize:14,fontWeight:700}}>Registros de hoy</div></div>
+          {registros.length===0
+            ?<div style={{padding:36,textAlign:"center",color:"var(--text3)"}}>Sin registros aún</div>
+            :<table><thead><tr><th>Hora</th><th>Servicio</th><th>Valor</th></tr></thead>
+              <tbody>
+                {registros.map(r=>(
+                  <tr key={r.id}>
+                    <td style={{color:"var(--text2)",fontSize:12}}>{r.hora?.slice(0,5)}</td>
+                    <td>{r.servicio}</td>
+                    <td style={{color:"var(--green)",fontWeight:600}}>${parseFloat(r.valor).toFixed(2)}</td>
+                  </tr>
+                ))}
+                <tr style={{background:"var(--bg3)"}}>
+                  <td colSpan={2} style={{fontWeight:700,fontSize:12}}>TOTAL</td>
+                  <td style={{color:"var(--blue3)",fontWeight:700}}>${total.toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── REGISTRO BANCO (reutilizable) ─────────────────────────
+function PageBanco({banco}){
+  const isPich=banco==="pichincha";
+  const color=isPich?"var(--pichincha)":"var(--guayaquil)";
+  const bClass=isPich?"bank-pichincha":"bank-guayaquil";
+  const txtClass=isPich?"pichincha-text":"guayaquil-text";
+  const [datos,setDatos]=useState({ingresos:[],retiros:[],total_ingresos:0,total_retiros:0});
+  const [tipo,setTipo]=useState("");const [valor,setValor]=useState("");const [desc,setDesc]=useState("");
+  const [msg,setMsg]=useState(null);const [load,setLoad]=useState(false);
+  const cargar=useCallback(()=>apiFetch(`/banco/hoy/${banco}`).then(setDatos),[banco]);
+  useEffect(()=>{cargar()},[cargar]);
+  const guardar=async()=>{
+    if(!tipo||!valor){setMsg({t:"error",m:"Selecciona tipo e ingresa valor"});return}
+    const v=parseFloat(valor);if(isNaN(v)||v<0){setMsg({t:"error",m:"Valor inválido"});return}
+    setLoad(true);
+    try{
+      await apiFetch("/banco/registro",{method:"POST",body:JSON.stringify({banco,tipo_movimiento:tipo,valor:v,descripcion:desc||null})});
+      setValor("");setDesc("");setMsg({t:"success",m:"Guardado ✓"});
+      setTimeout(()=>setMsg(null),2200);await cargar();
+    }catch(e){setMsg({t:"error",m:e.message})}finally{setLoad(false)}
+  };
+  const tipoLabels={pago_servicio:"Pago de servicio",deposito:"Depósito",retiro:"Retiro"};
+  const tipoIcons={pago_servicio:"💳",deposito:"⬆️",retiro:"⬇️"};
+  return(
+    <div>
+      <div className={`bank-header ${bClass}`}>
+        <span style={{fontSize:40}}>🏦</span>
+        <div><div className={`bank-title ${txtClass}`}>Banco {isPich?"Pichincha":"Guayaquil"}</div>
+          <div style={{fontSize:11,color:"var(--text3)"}}>Registro de movimientos del día</div></div>
+      </div>
+      {/* Totales rápidos */}
+      <div className="two-col-eq" style={{marginBottom:20}}>
+        <div className="stat-card" style={{borderColor:isPich?"rgba(245,158,11,.3)":"rgba(139,92,246,.3)"}}>
+          <div className="stat-lbl">Total ingresos (dep. + pagos)</div>
+          <div className="stat-val" style={{color}}>${datos.total_ingresos.toFixed(2)}</div>
+        </div>
+        <div className="stat-card" style={{borderColor:"rgba(239,68,68,.3)"}}>
+          <div className="stat-lbl">Total retiros</div>
+          <div className="stat-val" style={{color:"var(--red)"}}>${datos.total_retiros.toFixed(2)}</div>
+        </div>
+      </div>
+      {/* Formulario */}
+      <div className="card" style={{marginBottom:20}}>
+        <div style={{fontSize:14,fontWeight:700,marginBottom:14}}>Nuevo movimiento</div>
+        {msg&&<div className={`alert alert-${msg.t}`}>{msg.m}</div>}
+        <div style={{marginBottom:14}}>
+          <label className="form-label">Tipo de movimiento</label>
+          <div className="grid3">
+            {["pago_servicio","deposito","retiro"].map(t=>(
+              <div key={t} className={`tipo-btn${tipo===t?" selected":""}`} onClick={()=>setTipo(t)}>
+                <span className="tipo-icon">{tipoIcons[t]}</span>
+                <span className="tipo-name">{tipoLabels[t]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:14}}>
+          <div className="form-group"><label className="form-label">Valor ($)</label>
+            <input type="number" step="0.01" min="0" value={valor}
+              onChange={e=>setValor(e.target.value)} placeholder="0.00"/></div>
+          <div className="form-group"><label className="form-label">Descripción (opcional)</label>
+            <input value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Ej: Pago agua EPMAPS"/></div>
+        </div>
+        <button className="btn btn-primary" onClick={guardar} disabled={load}>
+          {load?<span className="spinner"/>:"💾 Guardar movimiento"}</button>
+      </div>
+      {/* Tablas lado a lado */}
+      <div className="two-col-eq">
+        <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+          <div style={{padding:"14px 18px",borderBottom:"1px solid var(--border)",
+            display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{fontSize:13,fontWeight:700}}>Depósitos + Pagos</div>
+            <div style={{fontSize:13,fontWeight:700,color}}>${datos.total_ingresos.toFixed(2)}</div>
+          </div>
+          {datos.ingresos.length===0
+            ?<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:12}}>Sin ingresos</div>
+            :<table><thead><tr><th>Hora</th><th>Tipo</th><th>Valor</th></tr></thead>
+              <tbody>{datos.ingresos.map(r=>(
+                <tr key={r.id}>
+                  <td style={{color:"var(--text2)",fontSize:11}}>{r.hora?.slice(0,5)}</td>
+                  <td><span className={`badge badge-${r.tipo==="deposito"?"green":"blue"}`}>{tipoLabels[r.tipo]}</span></td>
+                  <td style={{color:"var(--green)",fontWeight:600}}>${parseFloat(r.valor).toFixed(2)}</td>
+                </tr>
+              ))}</tbody></table>}
+        </div>
+        <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+          <div style={{padding:"14px 18px",borderBottom:"1px solid var(--border)",
+            display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{fontSize:13,fontWeight:700}}>Retiros</div>
+            <div style={{fontSize:13,fontWeight:700,color:"var(--red)"}}>${datos.total_retiros.toFixed(2)}</div>
+          </div>
+          {datos.retiros.length===0
+            ?<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:12}}>Sin retiros</div>
+            :<table><thead><tr><th>Hora</th><th>Descripción</th><th>Valor</th></tr></thead>
+              <tbody>{datos.retiros.map(r=>(
+                <tr key={r.id}>
+                  <td style={{color:"var(--text2)",fontSize:11}}>{r.hora?.slice(0,5)}</td>
+                  <td style={{fontSize:12,color:"var(--text2)"}}>{r.descripcion||"—"}</td>
+                  <td style={{color:"var(--red)",fontWeight:600}}>${parseFloat(r.valor).toFixed(2)}</td>
+                </tr>
+              ))}</tbody></table>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MI CAJA ───────────────────────────────────────────────
+function PageCaja(){
+  const [fecha,setFecha]=useState(new Date().toISOString().split("T")[0]);
+  const [data,setData]=useState(null);const [regs,setRegs]=useState(null);
+  useEffect(()=>{
+    Promise.all([
+      apiFetch(`/caja/resumen?fecha=${fecha}`),
+      apiFetch(`/registros/fecha?fecha=${fecha}`)
+    ]).then(([c,r])=>{setData(c);setRegs(r)}).catch(()=>{});
+  },[fecha]);
+  return(
+    <div>
+      <div className="page-title">Mi Caja</div>
+      <div className="page-sub">Resumen y detalle por fecha</div>
+      <div className="filter-row">
+        <div className="form-group"><label className="form-label">Fecha</label>
+          <input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} style={{width:180}}/></div>
+        {data&&<div style={{fontSize:22,fontWeight:700,color:"var(--blue3)",marginLeft:"auto"}}>
+          Gran total: ${data.gran_total?.toFixed(2)}</div>}
+      </div>
+      {data&&(
+        <div className="grid3" style={{marginBottom:20}}>
+          <div className="stat-card">
+            <div className="stat-lbl">🧾 Caja Servicios</div>
+            <div className="stat-val" style={{color:"var(--green)",fontSize:22}}>${data.total_servicios?.toFixed(2)}</div>
+          </div>
+          <div className="stat-card" style={{borderColor:"rgba(245,158,11,.3)"}}>
+            <div className="stat-lbl">🏦 Caja Pichincha</div>
+            <div className="stat-val" style={{color:"var(--pichincha)",fontSize:22}}>${data.pichincha?.ingresos?.toFixed(2)}</div>
+            <div style={{fontSize:11,color:"var(--red)",marginTop:4}}>Retiros: ${data.pichincha?.retiros?.toFixed(2)}</div>
+          </div>
+          <div className="stat-card" style={{borderColor:"rgba(139,92,246,.3)"}}>
+            <div className="stat-lbl">🏦 Caja Guayaquil</div>
+            <div className="stat-val" style={{color:"var(--guayaquil)",fontSize:22}}>${data.guayaquil?.ingresos?.toFixed(2)}</div>
+            <div style={{fontSize:11,color:"var(--red)",marginTop:4}}>Retiros: ${data.guayaquil?.retiros?.toFixed(2)}</div>
+          </div>
+        </div>
+      )}
+      {regs&&regs.registros.length>0&&(
+        <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+          <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",fontSize:13,fontWeight:700}}>
+            Detalle servicios</div>
+          <table><thead><tr><th>Hora</th><th>Servicio</th><th>Valor</th></tr></thead>
+            <tbody>{regs.registros.map(r=>(
+              <tr key={r.id}>
+                <td style={{color:"var(--text2)",fontSize:12}}>{r.hora?.slice(0,5)}</td>
+                <td>{r.servicio}</td>
+                <td style={{color:"var(--green)",fontWeight:600}}>${parseFloat(r.valor).toFixed(2)}</td>
+              </tr>
+            ))}</tbody></table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── CAJA BANCO HISTÓRICO ──────────────────────────────────
+function PageCajaBanco({banco}){
+  const isPich=banco==="pichincha";
+  const color=isPich?"var(--pichincha)":"var(--guayaquil)";
+  const [fecha,setFecha]=useState(new Date().toISOString().split("T")[0]);
+  const [data,setData]=useState(null);
+  useEffect(()=>{
+    apiFetch(`/banco/fecha/${banco}?fecha=${fecha}`).then(setData).catch(()=>{});
+  },[fecha,banco]);
+  const tipoLabels={pago_servicio:"Pago",deposito:"Depósito",retiro:"Retiro"};
+  return(
+    <div>
+      <div className="page-title">Caja {isPich?"Pichincha":"Guayaquil"}</div>
+      <div className="page-sub">Historial por fecha</div>
+      <div className="filter-row">
+        <div className="form-group"><label className="form-label">Fecha</label>
+          <input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} style={{width:180}}/></div>
+        {data&&<div style={{marginLeft:"auto",textAlign:"right"}}>
+          <div style={{fontSize:11,color:"var(--text2)"}}>Ingresos</div>
+          <div style={{fontSize:20,fontWeight:700,color}}>${data.total_ingresos?.toFixed(2)}</div>
+        </div>}
+        {data&&(
+          <div style={{
+            marginLeft:20,
+            padding:"10px 16px",
+            borderRadius:10,
+            border:"1px solid var(--border)",
+            background:"var(--bg3)",
+            textAlign:"right"
+          }}>
+            <div style={{fontSize:11,color:"var(--text2)"}}>💰 CAJA TOTAL</div>
+            <div style={{
+              fontSize:50,
+              fontWeight:700,
+              color: (data.total_ingresos - data.total_retiros) >= 0 ? "var(--green)" : "var(--red)"
+            }}>
+              ${((data.total_ingresos || 0) - (data.total_retiros || 0)).toFixed(2)}
+            </div>
+          </div>
+        )}
+        {data&&<div style={{textAlign:"right"}}>
+          <div style={{fontSize:11,color:"var(--text2)"}}>Retiros</div>
+          <div style={{fontSize:20,fontWeight:700,color:"var(--red)"}}>${data.total_retiros?.toFixed(2)}</div>
+        </div>}
+      </div>
+      {data&&(
+        <div className="two-col-eq">
+          <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+            <div style={{padding:"12px 18px",borderBottom:"1px solid var(--border)",
+              display:"flex",justifyContent:"space-between"}}>
+              <span style={{fontSize:13,fontWeight:700}}>Depósitos + Pagos</span>
+              <span style={{fontSize:13,fontWeight:700,color}}>${data.total_ingresos?.toFixed(2)}</span>
+            </div>
+            {data.ingresos?.length===0
+              ?<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:12}}>Sin registros</div>
+              :<table><thead><tr><th>Hora</th><th>Tipo</th><th>Descripción</th><th>Valor</th></tr></thead>
+                <tbody>{data.ingresos?.map(r=>(
+                  <tr key={r.id}>
+                    <td style={{color:"var(--text2)",fontSize:11}}>{r.hora?.slice(0,5)}</td>
+                    <td><span className="badge badge-green">{tipoLabels[r.tipo]}</span></td>
+                    <td style={{fontSize:12,color:"var(--text2)"}}>{r.descripcion||"—"}</td>
+                    <td style={{color:"var(--green)",fontWeight:600}}>${parseFloat(r.valor).toFixed(2)}</td>
+                  </tr>
+                ))}</tbody></table>}
+          </div>
+          <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+            <div style={{padding:"12px 18px",borderBottom:"1px solid var(--border)",
+              display:"flex",justifyContent:"space-between"}}>
+              <span style={{fontSize:13,fontWeight:700}}>Retiros</span>
+              <span style={{fontSize:13,fontWeight:700,color:"var(--red)"}}>${data.total_retiros?.toFixed(2)}</span>
+            </div>
+            {data.retiros?.length===0
+              ?<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:12}}>Sin retiros</div>
+              :<table><thead><tr><th>Hora</th><th>Descripción</th><th>Valor</th></tr></thead>
+                <tbody>{data.retiros?.map(r=>(
+                  <tr key={r.id}>
+                    <td style={{color:"var(--text2)",fontSize:11}}>{r.hora?.slice(0,5)}</td>
+                    <td style={{fontSize:12,color:"var(--text2)"}}>{r.descripcion||"—"}</td>
+                    <td style={{color:"var(--red)",fontWeight:600}}>${parseFloat(r.valor).toFixed(2)}</td>
+                  </tr>
+                ))}</tbody></table>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+// ── REPORTE ADMIN ────────────────────────────────────────
+function PageReporteDia(){
+  const [data,setData]=useState(null);
+
+  useEffect(()=>{
+    apiFetch("/caja/resumen") // 👈 usa el mismo endpoint de caja actual (hoy)
+      .then(setData)
+      .catch(()=>{});
+  },[]);
+
+  return(
+    <div>
+      <div className="page-title">Reporte General del Día</div>
+      <div className="page-sub">Resumen total consolidado</div>
+
+      {!data ? (
+        <div>Cargando...</div>
+      ) : (
+        <>
+          <div className="grid3">
+
+            <div className="stat-card">
+              <div className="stat-lbl" style={{fontSize:"18px"}}>🧾 Total Servicios</div>
+              <div className="stat-val" style={{color:"var(--green)"}}>
+                ${data.total_servicios?.toFixed(2)}
+              </div>
+            </div>
+
+            <div className="stat-card" style={{borderColor:"rgba(245,158,11,.3)"}}>
+              <div className="stat-lbl" style={{fontSize:"18px"}} >🏦 Pichincha</div>
+              <div className="stat-val" style={{color:"var(--pichincha)"}}>
+                ${((data.pichincha?.ingresos||0)-(data.pichincha?.retiros||0)).toFixed(2)}
+              </div>
+            </div>
+
+            <div className="stat-card" style={{borderColor:"rgba(139,92,246,.3)"}}>
+              <div className="stat-lbl" style={{fontSize:"18px"}} >🏦 Guayaquil</div>
+              <div className="stat-val" style={{color:"var(--guayaquil)"}}>
+                ${((data.guayaquil?.ingresos||0)-(data.guayaquil?.retiros||0)).toFixed(2)}
+              </div>
+            </div>
+
+          </div>
+
+          {/* TOTAL GENERAL */}
+          <div style={{
+            marginTop:25,
+            padding:"20px",
+            borderRadius:14,
+            background:"var(--bg3)",
+            border:"1px solid var(--border)",
+            textAlign:"center"
+          }}>
+            <div style={{fontSize:14,color:"var(--text2)"}}>💰 TOTAL GENERAL DEL DÍA</div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+
+// ── DASHBOARD ADMIN ───────────────────────────────────────
+function PageDashboard(){
+  const [fecha,setFecha]=useState(new Date().toISOString().split("T")[0]);
+  const [data,setData]=useState(null);
+  useEffect(()=>{apiFetch(`/reportes/diario?fecha=${fecha}`).then(setData).catch(()=>{})},[fecha]);
+  return(
+    <div>
+      <div className="page-title">Dashboard</div>
+      <div className="page-sub">Vista general de servicios por sucursal</div>
+      <div className="filter-row">
+        <div className="form-group"><label className="form-label">Fecha</label>
+          <input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} style={{width:180}}/></div>
+        {data&&<div className="stat-card" style={{flex:1,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div className="stat-lbl">Gran total del día</div>
+            <div className="stat-val" style={{color:"var(--blue3)"}}>${data.gran_total?.toFixed(2)}</div></div>
+          <span style={{fontSize:36}}>💰</span>
+        </div>}
+      </div>
+      {data&&<div className="grid6">
+        {data.sucursales?.map(s=>(
+          <div key={s.sucursal_id} className="stat-card">
+            <div style={{fontSize:11,color:"var(--text2)",marginBottom:4}}>{s.sucursal}</div>
+            <div style={{fontSize:20,fontWeight:700,color:s.total_valor>0?"var(--green)":"var(--text3)"}}>
+              ${parseFloat(s.total_valor).toFixed(2)}</div>
+            <div style={{fontSize:11,color:"var(--text3)",marginTop:3}}>{s.total_registros} reg.</div>
+          </div>
+        ))}
+      </div>}
+      {data&&<div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+        <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",fontSize:13,fontWeight:700}}>
+          Detalle por sucursal</div>
+        <table><thead><tr><th>Sucursal</th><th>Registros</th><th>Total</th><th>% del día</th></tr></thead>
+          <tbody>
+            {data.sucursales?.map(s=>(
+              <tr key={s.sucursal_id}>
+                <td style={{fontWeight:500}}>{s.sucursal}</td>
+                <td style={{color:"var(--text2)"}}>{s.total_registros}</td>
+                <td style={{color:"var(--green)",fontWeight:600}}>${parseFloat(s.total_valor).toFixed(2)}</td>
+                <td style={{color:"var(--text2)",fontSize:12}}>
+                  {data.gran_total>0?((s.total_valor/data.gran_total)*100).toFixed(1)+"%":"0%"}</td>
+              </tr>
+            ))}
+            <tr style={{background:"var(--bg3)"}}>
+              <td style={{fontWeight:700}}>TOTAL</td>
+              <td style={{fontWeight:700}}>{data.sucursales?.reduce((a,s)=>a+s.total_registros,0)}</td>
+              <td style={{color:"var(--blue3)",fontWeight:700}}>${data.gran_total?.toFixed(2)}</td>
+              <td>100%</td>
+            </tr>
+          </tbody></table>
+      </div>}
+    </div>
+  );
+}
+
+// ── DASHBOARD BANCO ADMIN ─────────────────────────────────
+function PageDashBanco({banco}){
+  const isPich=banco==="pichincha";
+  const color=isPich?"var(--pichincha)":"var(--guayaquil)";
+  const bClass=isPich?"bank-pichincha":"bank-guayaquil";
+  const [fi,setFi]=useState(new Date().toISOString().split("T")[0]);
+  const [ff,setFf]=useState(new Date().toISOString().split("T")[0]);
+  const [sucursales,setSucursales]=useState([]);
+  const [usuarios,setUsuarios]=useState([]);
+  const [sucId,setSucId]=useState("");
+  const [usrId,setUsrId]=useState("");
+  const [data,setData]=useState(null);
+  useEffect(()=>{
+    Promise.all([apiFetch("/sucursales"),apiFetch("/usuarios")]).then(([s,u])=>{setSucursales(s);setUsuarios(u)});
+  },[]);
+  const buscar=()=>{
+    let url=`/reportes/banco?banco=${banco}&fecha_inicio=${fi}&fecha_fin=${ff}`;
+    if(sucId)url+=`&sucursal_id=${sucId}`;if(usrId)url+=`&usuario_id=${usrId}`;
+    apiFetch(url).then(setData).catch(()=>{});
+  };
+  useEffect(()=>{buscar()},[banco,fi,ff,sucId,usrId]);
+  const tipoLabels={pago_servicio:"Pago",deposito:"Depósito",retiro:"Retiro"};
+  const ingresos=data?.registros?.filter(r=>r.tipo==="deposito"||r.tipo==="pago_servicio")||[];
+  const retiros=data?.registros?.filter(r=>r.tipo==="retiro")||[];
+  return(
+    <div>
+      <div className={`bank-header ${bClass}`}>
+        <span style={{fontSize:28}}>🏦</span>
+        <div><div className={`bank-title`} style={{color,fontSize:18}}>Dashboard {isPich?"Pichincha":"Guayaquil"}</div>
+          <div style={{fontSize:11,color:"var(--text3)"}}>Filtros avanzados por fecha, usuario y sucursal</div></div>
+      </div>
+      <div className="filter-row">
+        <div className="form-group"><label className="form-label">Desde</label>
+          <input type="date" value={fi} onChange={e=>setFi(e.target.value)} style={{width:160}}/></div>
+        <div className="form-group"><label className="form-label">Hasta</label>
+          <input type="date" value={ff} onChange={e=>setFf(e.target.value)} style={{width:160}}/></div>
+        <div className="form-group"><label className="form-label">Sucursal</label>
+          <select value={sucId} onChange={e=>setSucId(e.target.value)} style={{width:170}}>
+            <option value="">Todas</option>
+            {sucursales.map(s=><option key={s.id} value={s.id}>{s.nombre}</option>)}
+          </select></div>
+        <div className="form-group"><label className="form-label">Usuario</label>
+          <select value={usrId} onChange={e=>setUsrId(e.target.value)} style={{width:170}}>
+            <option value="">Todos</option>
+            {usuarios.map(u=><option key={u.id} value={u.id}>{u.nombre}</option>)}
+          </select></div>
+      </div>
+      {data&&<div className="two-col-eq" style={{marginBottom:20}}>
+        <div className="stat-card" style={{borderColor:isPich?"rgba(245,158,11,.3)":"rgba(139,92,246,.3)"}}>
+          <div className="stat-lbl">Total ingresos (dep. + pagos)</div>
+          <div className="stat-val" style={{color}}>${data.total_ingresos?.toFixed(2)}</div>
+        </div>
+        <div className="stat-card" style={{borderColor:"rgba(239,68,68,.3)"}}>
+          <div className="stat-lbl">Total retiros</div>
+          <div className="stat-val" style={{color:"var(--red)"}}>${data.total_retiros?.toFixed(2)}</div>
+        </div>
+      </div>}
+      {data&&<div className="two-col-eq">
+        <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+          <div style={{padding:"12px 18px",borderBottom:"1px solid var(--border)",
+            display:"flex",justifyContent:"space-between"}}>
+            <span style={{fontSize:13,fontWeight:700}}>Depósitos + Pagos</span>
+            <span style={{fontSize:13,fontWeight:700,color}}>${data.total_ingresos?.toFixed(2)}</span>
+          </div>
+          {ingresos.length===0
+            ?<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:12}}>Sin registros</div>
+            :<table><thead><tr><th>Fecha</th><th>Sucursal</th><th>Usuario</th><th>Tipo</th><th>Total</th></tr></thead>
+              <tbody>{ingresos.map((r,i)=>(
+                <tr key={i}>
+                  <td style={{fontSize:12}}>{r.fecha}</td>
+                  <td style={{fontSize:12}}>{r.sucursal}</td>
+                  <td style={{fontSize:12,color:"var(--text2)"}}>{r.usuario}</td>
+                  <td><span className="badge badge-green">{tipoLabels[r.tipo]||r.tipo}</span></td>
+                  <td style={{color:"var(--green)",fontWeight:600}}>${r.total?.toFixed(2)}</td>
+                </tr>
+              ))}</tbody></table>}
+        </div>
+        <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+          <div style={{padding:"12px 18px",borderBottom:"1px solid var(--border)",
+            display:"flex",justifyContent:"space-between"}}>
+            <span style={{fontSize:13,fontWeight:700}}>Retiros</span>
+            <span style={{fontSize:13,fontWeight:700,color:"var(--red)"}}>${data.total_retiros?.toFixed(2)}</span>
+          </div>
+          {retiros.length===0
+            ?<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:12}}>Sin retiros</div>
+            :<table><thead><tr><th>Fecha</th><th>Sucursal</th><th>Usuario</th><th>Total</th></tr></thead>
+              <tbody>{retiros.map((r,i)=>(
+                <tr key={i}>
+                  <td style={{fontSize:12}}>{r.fecha}</td>
+                  <td style={{fontSize:12}}>{r.sucursal}</td>
+                  <td style={{fontSize:12,color:"var(--text2)"}}>{r.usuario}</td>
+                  <td style={{color:"var(--red)",fontWeight:600}}>${r.total?.toFixed(2)}</td>
+                </tr>
+              ))}</tbody></table>}
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+// ── REPORTES ──────────────────────────────────────────────
+function PageReportes(){
+  const [tab,setTab]=useState("semanal");
+  const [data,setData]=useState([]);
+  useEffect(()=>{
+    apiFetch(tab==="semanal"?"/reportes/semanal":"/reportes/mensual").then(setData).catch(()=>{});
+  },[tab]);
+  return(
+    <div>
+      <div className="page-title">Reportes</div>
+      <div className="page-sub">Agrupados por período</div>
+      <div className="tabs">
+        <button className={`tab${tab==="semanal"?" active":""}`} onClick={()=>setTab("semanal")}>Semanal</button>
+        <button className={`tab${tab==="mensual"?" active":""}`} onClick={()=>setTab("mensual")}>Mensual</button>
+      </div>
+      <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+        <table><thead><tr>
+          <th>{tab==="semanal"?"Semana":"Mes"}</th><th>Sucursal</th><th>Total</th>
+        </tr></thead>
+          <tbody>{data.map((r,i)=>(
+            <tr key={i}>
+              <td style={{color:"var(--text2)",fontSize:12}}>
+                {tab==="semanal"?`Sem. ${r.semana}`:r.mes?.slice(0,7)}</td>
+              <td style={{fontWeight:500}}>{r.sucursal}</td>
+              <td style={{color:"var(--green)",fontWeight:600}}>${parseFloat(r.total).toFixed(2)}</td>
+            </tr>
+          ))}</tbody></table>
+      </div>
+    </div>
+  );
+}
+
+// ── REPORTE GENERAL (Excel) ───────────────────────────────
+function PageReporteGeneral(){
+  const [fi,setFi]=useState(new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().split("T")[0]);
+  const [ff,setFf]=useState(new Date().toISOString().split("T")[0]);
+  const [sucursales,setSucursales]=useState([]);
+  const [sucId,setSucId]=useState("");
+  const [load,setLoad]=useState(false);const [msg,setMsg]=useState(null);
+  useEffect(()=>{apiFetch("/sucursales").then(setSucursales).catch(()=>{})},[]);
+  const descargar=async()=>{
+    setLoad(true);setMsg(null);
+    try{
+      let url=`/reportes/excel?fecha_inicio=${fi}&fecha_fin=${ff}`;
+      if(sucId)url+=`&sucursal_id=${sucId}`;
+      await apiDownload(url);
+      setMsg({t:"success",m:"Excel descargado correctamente ✓"});
+    }catch(e){setMsg({t:"error",m:e.message})}finally{setLoad(false)}
+  };
+  return(
+    <div>
+      <div className="page-title">Reporte General</div>
+      <div className="page-sub">Descarga el reporte completo en Excel con 3 hojas: Servicios, Pichincha, Guayaquil</div>
+      <div className="card" style={{maxWidth:600}}>
+        <div style={{fontSize:14,fontWeight:700,marginBottom:18}}>📑 Configurar reporte</div>
+        {msg&&<div className={`alert alert-${msg.t}`}>{msg.m}</div>}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+          <div className="form-group"><label className="form-label">Desde</label>
+            <input type="date" value={fi} onChange={e=>setFi(e.target.value)}/></div>
+          <div className="form-group"><label className="form-label">Hasta</label>
+            <input type="date" value={ff} onChange={e=>setFf(e.target.value)}/></div>
+        </div>
+        <div className="form-group"><label className="form-label">Sucursal (opcional)</label>
+          <select value={sucId} onChange={e=>setSucId(e.target.value)}>
+            <option value="">Todas las sucursales</option>
+            {sucursales.map(s=><option key={s.id} value={s.id}>{s.nombre}</option>)}
+          </select></div>
+        <div style={{background:"var(--bg3)",border:"1px solid var(--border)",borderRadius:10,padding:16,marginBottom:16}}>
+          <div style={{fontSize:12,fontWeight:700,color:"var(--text2)",marginBottom:8}}>El Excel incluye:</div>
+          <div style={{fontSize:12,color:"var(--text2)",lineHeight:1.8}}>
+            📋 <b>Hoja 1 — Servicios:</b> todos los registros diarios<br/>
+            🏦 <b>Hoja 2 — Banco Pichincha:</b> depósitos, pagos y retiros<br/>
+            🏦 <b>Hoja 3 — Banco Guayaquil:</b> depósitos, pagos y retiros<br/>
+            📊 <b>Hoja 4 — Resumen General:</b> totales consolidados
+          </div>
+        </div>
+        <button className="btn btn-primary" style={{width:"100%",padding:13,fontSize:14}}
+          onClick={descargar} disabled={load}>
+          {load?<><span className="spinner"/> Generando...</>:"⬇️ Descargar Excel"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── SUCURSALES ADMIN ──────────────────────────────────────
+function PageSucursales(){
+  const [sucursales,setSucursales]=useState([]);
+  const [show,setShow]=useState(false);const [nom,setNom]=useState("");const [dir,setDir]=useState("");
+  const cargar=()=>apiFetch("/sucursales").then(setSucursales).catch(()=>{});
+  useEffect(()=>{cargar()},[]);
+  const crear=async()=>{if(!nom)return;await apiFetch("/sucursales",{method:"POST",body:JSON.stringify({nombre:nom,direccion:dir})});setNom("");setDir("");setShow(false);cargar()};
+  const del_=async id=>{if(!confirm("¿Desactivar?"))return;await apiFetch(`/sucursales/${id}`,{method:"DELETE"});cargar()};
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20}}>
+        <div><div className="page-title">Sucursales</div>
+          <div className="page-sub">{sucursales.length} activa(s)</div></div>
+        <button className="btn btn-primary" onClick={()=>setShow(true)}>+ Nueva sucursal</button>
+      </div>
+      <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+        <table><thead><tr><th>#</th><th>Nombre</th><th>Dirección</th><th>Estado</th><th></th></tr></thead>
+          <tbody>{sucursales.map(s=>(
+            <tr key={s.id}>
+              <td style={{color:"var(--text3)"}}>{s.id}</td>
+              <td style={{fontWeight:600}}>{s.nombre}</td>
+              <td style={{color:"var(--text2)",fontSize:12}}>{s.direccion||"—"}</td>
+              <td><span className="badge badge-green">Activa</span></td>
+              <td><button className="btn btn-danger btn-sm" onClick={()=>del_(s.id)}>Desactivar</button></td>
+            </tr>
+          ))}</tbody></table>
+      </div>
+      {show&&<div className="modal-overlay" onClick={()=>setShow(false)}>
+        <div className="modal" onClick={e=>e.stopPropagation()}>
+          <h2>Nueva sucursal</h2>
+          <div className="form-group"><label className="form-label">Nombre *</label>
+            <input value={nom} onChange={e=>setNom(e.target.value)} placeholder="Ej: Sucursal Norte"/></div>
+          <div className="form-group"><label className="form-label">Dirección</label>
+            <input value={dir} onChange={e=>setDir(e.target.value)} placeholder="Av. Principal 123"/></div>
+          <div style={{display:"flex",gap:10}}>
+            <button className="btn btn-primary" style={{flex:1}} onClick={crear}>Crear</button>
+            <button className="btn btn-secondary" onClick={()=>setShow(false)}>Cancelar</button>
+          </div>
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+
+// ── USUARIOS ADMIN ────────────────────────────────────────
+function PageUsuarios(){
+  const [usuarios,setUsuarios]=useState([]);
+  const [sucursales,setSucursales]=useState([]);
+  const [show,setShow]=useState(false);
+  const [form,setForm]=useState({nombre:"",email:"",password:"",rol:"usuario",sucursal_id:""});
+  const cargar=()=>Promise.all([apiFetch("/usuarios").then(setUsuarios),apiFetch("/sucursales").then(setSucursales)]).catch(()=>{});
+  useEffect(()=>{cargar()},[]);
+  const crear=async()=>{
+    if(!form.nombre||!form.email||!form.password)return;
+    const b={...form,sucursal_id:form.sucursal_id?parseInt(form.sucursal_id):null};
+    await apiFetch("/usuarios",{method:"POST",body:JSON.stringify(b)});
+    setShow(false);setForm({nombre:"",email:"",password:"",rol:"usuario",sucursal_id:""});cargar();
+  };
+  const del_=async id=>{if(!confirm("¿Desactivar?"))return;await apiFetch(`/usuarios/${id}`,{method:"DELETE"});cargar()};
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20}}>
+        <div><div className="page-title">Usuarios</div>
+          <div className="page-sub">{usuarios.length} activo(s)</div></div>
+        <button className="btn btn-primary" onClick={()=>setShow(true)}>+ Nuevo usuario</button>
+      </div>
+      <div className="card" style={{padding:0,maxHeight:"700px",overflow:"auto"}}>
+        <table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Sucursal</th><th></th></tr></thead>
+          <tbody>{usuarios.map(u=>(
+            <tr key={u.id}>
+              <td style={{fontWeight:500}}>{u.nombre}</td>
+              <td style={{color:"var(--text2)",fontSize:12}}>{u.email}</td>
+              <td><span className={`badge badge-${u.rol==="admin"?"amber":"blue"}`}>{u.rol}</span></td>
+              <td style={{color:"var(--text2)",fontSize:12}}>{sucursales.find(s=>s.id===u.sucursal_id)?.nombre||"—"}</td>
+              <td><button className="btn btn-danger btn-sm" onClick={()=>del_(u.id)}>Desactivar</button></td>
+            </tr>
+          ))}</tbody></table>
+      </div>
+      {show&&<div className="modal-overlay" onClick={()=>setShow(false)}>
+        <div className="modal" onClick={e=>e.stopPropagation()}>
+          <h2>Nuevo usuario</h2>
+          <div className="form-group"><label className="form-label">Nombre *</label>
+            <input value={form.nombre} onChange={e=>setForm({...form,nombre:e.target.value})} placeholder="Juan Pérez"/></div>
+          <div className="form-group"><label className="form-label">Email *</label>
+            <input type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="juan@empresa.com"/></div>
+          <div className="form-group"><label className="form-label">Contraseña *</label>
+            <input type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} placeholder="Min. 8 caracteres"/></div>
+          <div className="form-group"><label className="form-label">Rol</label>
+            <select value={form.rol} onChange={e=>setForm({...form,rol:e.target.value})}>
+              <option value="usuario">Usuario</option>
+              <option value="admin">Administrador</option>
+            </select></div>
+          <div className="form-group"><label className="form-label">Sucursal</label>
+            <select value={form.sucursal_id} onChange={e=>setForm({...form,sucursal_id:e.target.value})}>
+              <option value="">— Sin sucursal (admin) —</option>
+              {sucursales.map(s=><option key={s.id} value={s.id}>{s.nombre}</option>)}
+            </select></div>
+          <div style={{display:"flex",gap:10}}>
+            <button className="btn btn-primary" style={{flex:1}} onClick={crear}>Crear usuario</button>
+            <button className="btn btn-secondary" onClick={()=>setShow(false)}>Cancelar</button>
+          </div>
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+// ── APP ROOT ──────────────────────────────────────────────
+function App(){
+  const {user,loading}=useContext(AuthCtx);
+  const [page,setPage]=useState(null);
+  useEffect(()=>{
+    if(user)setPage(user.rol==="admin"?"dashboard":"registro");
+  },[user]);
+  if(loading)return(
+    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh"}}>
+      <div className="spinner" style={{width:32,height:32,borderWidth:3}}/>
+    </div>
+  );
+  if(!user)return <LoginPage/>;
+  const pages={
+    registro:<PageRegistro/>,
+    banco_pichincha:<PageBanco banco="pichincha"/>,
+    banco_guayaquil:<PageBanco banco="guayaquil"/>,
+    caja:<PageCaja/>,
+    caja_pichincha:<PageCajaBanco banco="pichincha"/>,
+    caja_guayaquil:<PageCajaBanco banco="guayaquil"/>,
+    dashboard:<PageDashboard/>,
+    dash_pichincha:<PageDashBanco banco="pichincha"/>,
+    dash_guayaquil:<PageDashBanco banco="guayaquil"/>,
+    reportes:<PageReportes/>,
+    reporte_general:<PageReporteGeneral/>,
+    sucursales:<PageSucursales/>,
+    usuarios:<PageUsuarios/>,
+    reporte_dia:<PageReporteDia/>,
+  };
+  return(
+    <Layout page={page} setPage={setPage}>
+      {pages[page]||<div style={{color:"var(--text2)"}}>Selecciona una opción</div>}
+    </Layout>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <AuthProvider><App/></AuthProvider>
+);
+</script>
+</body>
+</html>
