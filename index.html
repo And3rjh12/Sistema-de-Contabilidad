@@ -125,7 +125,7 @@ tbody tr:last-child{border-bottom:none}
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useCallback,useContext,createContext} = React;
-const API = "https://sistema.jakfiber.com";  // ← En producción cambia por tu dominio o deja vacío si Nginx hace proxy
+const API = "http://sistema.jakfiber.com";  // ← En producción cambia por tu dominio o deja vacío si Nginx hace proxy
 
 async function apiFetch(path,opts={}){
   const token=localStorage.getItem("token");
