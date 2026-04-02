@@ -30,7 +30,6 @@ services:
     restart: always
     volumes:
       - ./index.html:/usr/share/nginx/html/index.html
-
   nginx:
     image: nginx:alpine
     container_name: nginx_proxy
@@ -42,7 +41,6 @@ services:
     depends_on:
       - frontend
       - api
-
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin

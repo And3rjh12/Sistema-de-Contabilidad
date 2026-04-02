@@ -4,9 +4,12 @@ server {
 
     location / {
         proxy_pass http://frontend_app:80;
+        proxy_set_header Host $host;
     }
 
-    location /api/ {
+    location ~ ^/(auth|registros|sucursales|usuarios|servicios|banco|caja|reportes)/ {
         proxy_pass http://fastapi_app:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
     }
 }
