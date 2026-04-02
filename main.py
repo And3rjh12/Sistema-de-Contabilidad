@@ -26,7 +26,7 @@ from openpyxl.utils import get_column_letter
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/registro_diario")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@db:5432/registro_diario")
 SECRET_KEY   = os.getenv("SECRET_KEY", "cambia-esto-en-produccion")
 ALGORITHM    = "HS256"
 TOKEN_EXPIRE = 480
@@ -34,6 +34,7 @@ TOKEN_EXPIRE = 480
 engine       = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base         = declarative_base()
+Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()
